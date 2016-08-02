@@ -1,6 +1,6 @@
 {
   "name": "SwiftNetwork",
-  "summary": "A short description of SwiftNetwork.",
+  "summary": "Lightweight Network layer in Swift.",
   "version": "0.1.0",
   "homepage": "https://github.com/ankitthakur/SwiftNetwork",
   "license": "MIT",
@@ -14,8 +14,8 @@
   "social_media_url": "https://twitter.com/ankitthakur",
   "platforms": {
     "ios": "8.0",
-    "osx": "10.9",
-    "tvos": "9.2"
+    "osx": "10.10",
+    "tvos": "9.0"
   },
   "requires_arc": true,
   "ios": {

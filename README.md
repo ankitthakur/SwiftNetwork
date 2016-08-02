@@ -13,7 +13,17 @@
 ## Usage
 
 ```swift
-<API in progress>
+HTTPNetworkManagerCompletionBlock = (data:NSMutableData?, response:URLResponse?, error:NSError?) -> (Void)
+
+SwiftNetwork.sharedInstance.get(<#T##urlSring: String##String#>, timeout: <#T##TimeInterval#>, completionBlock: <#T##HTTPNetworkManagerCompletionBlock##HTTPNetworkManagerCompletionBlock##(data: NSMutableData?, response: URLResponse?, error: NSError?) -> (Void)#>)
+
+SwiftNetwork.sharedInstance.get(<#T##urlSring: String##String#>, headers: <#T##[String : String]#>, timeout: <#T##TimeInterval#>, completionBlock: <#T##HTTPNetworkManagerCompletionBlock##HTTPNetworkManagerCompletionBlock##(data: NSMutableData?, response: URLResponse?, error: NSError?) -> (Void)#>)
+
+SwiftNetwork.sharedInstance.post(<#T##urlSring: String##String#>, body: <#T##Data#>, timeout: <#T##TimeInterval#>, completionBlock: <#T##HTTPNetworkManagerCompletionBlock##HTTPNetworkManagerCompletionBlock##(data: NSMutableData?, response: URLResponse?, error: NSError?) -> (Void)#>)
+
+SwiftNetwork.sharedInstance.post(<#T##urlSring: String##String#>, body: <#T##Data#>, headers: <#T##[String : String]#>, timeout: <#T##TimeInterval#>, completionBlock: <#T##HTTPNetworkManagerCompletionBlock##HTTPNetworkManagerCompletionBlock##(data: NSMutableData?, response: URLResponse?, error: NSError?) -> (Void)#>)
+
+
 ```
 
 ## Installation
