@@ -8,12 +8,12 @@
 
 ## Description
 
-**SwiftNetwork** description.
+**SwiftNetwork** is lightweight network layer in swift.
 
 ## Usage
 
 ```swift
-<API>
+<API in progress>
 ```
 
 ## Installation
