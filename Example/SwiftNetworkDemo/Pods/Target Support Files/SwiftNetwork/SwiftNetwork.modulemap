@@ -1,0 +1,6 @@
+framework module SwiftNetwork {
+  umbrella header "SwiftNetwork-umbrella.h"
+
+  export *
+  module * { export * }
+}
