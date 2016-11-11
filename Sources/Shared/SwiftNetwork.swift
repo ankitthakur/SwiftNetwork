@@ -9,15 +9,15 @@
 import Foundation
 
 /** SwiftNetwork Class
-
-*/
+ 
+ */
 public class SwiftNetwork:NSObject, URLSessionDelegate, URLSessionTaskDelegate, URLSessionDataDelegate {
-
-    public static let sharedInstance = SwiftNetwork()
     
-    private var networkParams:Array<NetworkParams> = Array()
-
-    private override init(){
+    open static let sharedInstance = SwiftNetwork()
+    
+    fileprivate var networkParams:Array<NetworkParams> = Array()
+    
+    fileprivate override init(){
         super.init()
     }
     
@@ -30,7 +30,7 @@ public class SwiftNetwork:NSObject, URLSessionDelegate, URLSessionTaskDelegate, 
     
     
     
-    private func networkCall(_ request:URLRequest, completionBlock:HTTPNetworkManagerCompletionBlock)
+    fileprivate func networkCall(_ request:URLRequest, completionBlock:@escaping HTTPNetworkManagerCompletionBlock)
     {
         let configurationId = String(format: "SwiftNetwork%d", UInt32(self.networkParams.count)*arc4random())
         let configuration = URLSessionConfiguration.background(withIdentifier: configurationId)
@@ -46,7 +46,7 @@ public class SwiftNetwork:NSObject, URLSessionDelegate, URLSessionTaskDelegate, 
         networkParams[networkParams.count] = param
     }
     
-    private func post(_ postData:Data, request:URLRequest, completionBlock:HTTPNetworkManagerCompletionBlock)
+    fileprivate func post(_ postData:Data, request:URLRequest, completionBlock:@escaping HTTPNetworkManagerCompletionBlock)
     {
         var request = request
         request.httpBody = postData as Data
@@ -55,7 +55,7 @@ public class SwiftNetwork:NSObject, URLSessionDelegate, URLSessionTaskDelegate, 
         networkCall(request, completionBlock: completionBlock)
     }
     
-    private func get(_ request:URLRequest, completionBlock:HTTPNetworkManagerCompletionBlock)
+    fileprivate func get(_ request:URLRequest, completionBlock:@escaping HTTPNetworkManagerCompletionBlock)
     {
         var request = request
         request.httpMethod = "GET"
@@ -65,7 +65,7 @@ public class SwiftNetwork:NSObject, URLSessionDelegate, URLSessionTaskDelegate, 
     
     // MARK: Public APIs
     
-    public func get(_ urlSring:String, timeout:TimeInterval,completionBlock:HTTPNetworkManagerCompletionBlock)
+    func get(_ urlSring:String, timeout:TimeInterval,completionBlock:@escaping HTTPNetworkManagerCompletionBlock)
     {
         let url = URL(string: urlSring)
         var request = URLRequest(url: url!, cachePolicy: URLRequest.CachePolicy.useProtocolCachePolicy, timeoutInterval: timeout)
@@ -74,8 +74,8 @@ public class SwiftNetwork:NSObject, URLSessionDelegate, URLSessionTaskDelegate, 
         
         networkCall(request, completionBlock: completionBlock)
     }
-   
-    public func get(_ urlSring:String, headers:[String:String], timeout:TimeInterval, completionBlock:HTTPNetworkManagerCompletionBlock){
+    
+    func get(_ urlSring:String, headers:[String:String], timeout:TimeInterval, completionBlock:@escaping HTTPNetworkManagerCompletionBlock){
         let url = URL(string: urlSring)
         var request = URLRequest(url: url!, cachePolicy: URLRequest.CachePolicy.useProtocolCachePolicy, timeoutInterval: timeout)
         request = SwiftNetwork.addJSONHeaders(request)
@@ -87,14 +87,14 @@ public class SwiftNetwork:NSObject, URLSessionDelegate, URLSessionTaskDelegate, 
         get(request, completionBlock: completionBlock)
     }
     
-    public func post(_ urlSring:String, body:Data, timeout:TimeInterval, completionBlock:HTTPNetworkManagerCompletionBlock){
+    func post(_ urlSring:String, body:Data, timeout:TimeInterval, completionBlock:@escaping HTTPNetworkManagerCompletionBlock){
         let url = URL(string: urlSring)
         var request = URLRequest(url: url!, cachePolicy: URLRequest.CachePolicy.useProtocolCachePolicy, timeoutInterval: timeout)
         request = SwiftNetwork.addJSONHeaders(request)
         post(body, request: request, completionBlock: completionBlock)
     }
     
-    public func post(_ urlSring:String, body:Data, headers:[String:String], timeout:TimeInterval, completionBlock:HTTPNetworkManagerCompletionBlock){
+    func post(_ urlSring:String, body:Data, headers:[String:String], timeout:TimeInterval, completionBlock:@escaping HTTPNetworkManagerCompletionBlock){
         let url = URL(string: urlSring)
         var request = URLRequest(url: url!, cachePolicy: URLRequest.CachePolicy.useProtocolCachePolicy, timeoutInterval: timeout)
         request = SwiftNetwork.addJSONHeaders(request)
@@ -107,27 +107,106 @@ public class SwiftNetwork:NSObject, URLSessionDelegate, URLSessionTaskDelegate, 
     }
     
     // MARK: Delegates
-    public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: (URLSession.AuthChallengeDisposition, URLCredential?) -> Swift.Void){
+    public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Swift.Void){
+        
+        var disposition: URLSession.AuthChallengeDisposition = URLSession.AuthChallengeDisposition.performDefaultHandling
+        
+        var credential:URLCredential?
+        
+        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
+            
+            //TODO: validate ssl pinning
+            /*
+            if (isValid != nil) {
+                credential = URLCredential(trust: challenge.protectionSpace.serverTrust!)
+                
+                if (credential != nil) {
+                    disposition = URLSession.AuthChallengeDisposition.useCredential
+                }
+                else{
+                    disposition = URLSession.AuthChallengeDisposition.performDefaultHandling
+                }
+            }
+            else{
+                disposition = URLSession.AuthChallengeDisposition.cancelAuthenticationChallenge
+            }
+            */
+            credential = URLCredential(trust: challenge.protectionSpace.serverTrust!)
+            
+            if (credential != nil) {
+                disposition = URLSession.AuthChallengeDisposition.useCredential
+            }
+            else{
+                disposition = URLSession.AuthChallengeDisposition.performDefaultHandling
+            }
+        }
+        else{
+            disposition = URLSession.AuthChallengeDisposition.cancelAuthenticationChallenge
+        }
+        
+        
+        completionHandler(disposition, credential)
         
     }
     
-    public func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: (URLSession.AuthChallengeDisposition, URLCredential?) -> Swift.Void){
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Swift.Void){
         
+        var disposition: URLSession.AuthChallengeDisposition = URLSession.AuthChallengeDisposition.performDefaultHandling
+        
+        var credential:URLCredential?
+        
+        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
+            
+            //TODO: validate ssl pinning
+            /*
+             if (isValid != nil) {
+                 credential = URLCredential(trust: challenge.protectionSpace.serverTrust!)
+             
+             if (credential != nil) {
+                 disposition = URLSession.AuthChallengeDisposition.useCredential
+             }
+             else{
+                 disposition = URLSession.AuthChallengeDisposition.performDefaultHandling
+             }
+             }
+             else{
+                 disposition = URLSession.AuthChallengeDisposition.cancelAuthenticationChallenge
+             }
+             */
+            credential = URLCredential(trust: challenge.protectionSpace.serverTrust!)
+            
+            if (credential != nil) {
+                disposition = URLSession.AuthChallengeDisposition.useCredential
+            }
+            else{
+                disposition = URLSession.AuthChallengeDisposition.performDefaultHandling
+            }
+        }
+        else{
+            disposition = URLSession.AuthChallengeDisposition.cancelAuthenticationChallenge
+        }
+        
+        
+        completionHandler(disposition, credential)
     }
     
-    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: NSError?){
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?){
         
         let params = networkParams.filter {
             $0.session == session
         }
         
-        guard let param:NetworkParams = params.last! as NetworkParams else{return}
-        
-        param.completionBlock!(data:nil, response:task.response, error:error)
+        if params.count > 0 {
+            let param:NetworkParams? = params.last! as NetworkParams
+            
+            if (param != nil){
+                param!.completionBlock!(nil, task.response, error as NSError?)
+            }
+        }
         
     }
     
-    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: (URLSession.ResponseDisposition) -> Swift.Void){
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Swift.Void){
         
     }
     
@@ -137,15 +216,19 @@ public class SwiftNetwork:NSObject, URLSessionDelegate, URLSessionTaskDelegate, 
             $0.session == session
         }
         
-        guard let param:NetworkParams = params.last! as NetworkParams else{
-            return
+        if params.count > 0 {
+            let param:NetworkParams? = params.last! as NetworkParams
+            
+            if (param != nil){
+                if param!.responseData == nil {
+                    param!.responseData = NSMutableData(capacity: 0)
+                }
+                
+                param!.responseData?.append(data)
+            }
         }
         
-        if param.responseData == nil {
-            param.responseData = NSMutableData(capacity: 0)
-        }
         
-        param.responseData?.append(data)
     }
     
     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome downloadTask: URLSessionDownloadTask){
@@ -156,19 +239,23 @@ public class SwiftNetwork:NSObject, URLSessionDelegate, URLSessionTaskDelegate, 
             $0.session == session
         }
         
-        guard let param:NetworkParams = params.last! as NetworkParams else{
-            return
+        if params.count > 0 {
+            let param:NetworkParams? = params.last! as NetworkParams
+            
+            if (param != nil){
+                if (responseStatusCode >= 200 && responseStatusCode < 300) {
+                    param!.completionBlock!(param!.responseData, dataTask.response, dataTask.error as NSError?);
+                } else {
+                    
+                    param!.completionBlock!(nil, dataTask.response, dataTask.error as NSError?);
+                }
+            }
         }
         
-        if (responseStatusCode >= 200 && responseStatusCode < 300) {
-            param.completionBlock!(data: param.responseData, response: dataTask.response, error: dataTask.error);
-        } else {
-            
-            param.completionBlock!(data: nil, response: dataTask.response, error: dataTask.error);
-        }
+        
     }
     
     
     
-
+    
 }

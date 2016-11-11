@@ -12,9 +12,9 @@ import Foundation
  This class act as a model, containing all required info for single request.
 */
 
-public typealias HTTPNetworkManagerCompletionBlock = (data:NSMutableData?, response:URLResponse?, error:NSError?) -> (Void)
+public typealias HTTPNetworkManagerCompletionBlock = (_ data:NSMutableData?, _ response:URLResponse?, _ error:NSError?) -> (Void)
 
-public class NetworkParams {
+open class NetworkParams {
 
     /**
      *  nsurlconnection object
